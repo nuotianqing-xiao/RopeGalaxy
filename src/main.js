@@ -487,17 +487,34 @@ CATEGORIES.forEach((cat, ci) => {
    信息面板
 ========================= */
 
+function getImageSrc(imagePath) {
+  if (!imagePath) return ''
+
+  // 如果是网络图片，直接使用
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath
+  }
+
+  // 去掉路径开头的 /
+  const cleanPath = imagePath.replace(/^\/+/, '')
+
+  // 自动补上 Vite 的 base 路径
+  return `${import.meta.env.BASE_URL}${cleanPath}`
+}
+
 function showKnotPanel(knot) {
-  const img = knot.image
+  const imageSrc = getImageSrc(knot.image)
+
+  const img = imageSrc
     ? `
       <img
         class="knotImage"
-        src="${knot.image}"
+        src="${imageSrc}"
         alt="${knot.name}"
         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
       />
       <div class="imagePlaceholder" style="display:none;">
-        图片未找到：${knot.image}
+        图片未找到：${imageSrc}
       </div>
     `
     : `
@@ -514,7 +531,7 @@ function showKnotPanel(knot) {
     <div class="meta"><b>分类：</b>${knot.category}</div>
     <div class="meta"><b>用途：</b>${knot.usage}</div>
     <div class="meta"><b>结构特点：</b>${knot.feature}</div>
-    <div class="path">图片路径：${knot.image || '未设置'}</div>
+    <div class="path">图片路径：${imageSrc || '未设置'}</div>
   `
 
   infoPanel.classList.remove('hidden')
